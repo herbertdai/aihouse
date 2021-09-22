@@ -38,28 +38,51 @@ cam.set(4, 480) # set video height
 minW = 0.1*cam.get(3)
 minH = 0.1*cam.get(4)
 
+lastText = ''
+
 def ttsbaidu(text):
     """ 你的 APPID AK SK """
     APP_ID = '24887102'
-    API_KEY = 'rWxcpmscj8291Nz0CWfBwzzy'
-    SECRET_KEY = 'DoEZn2cy4v4Pczu6PHNR5lAFCdS0HrZd'
+    API_KEY = 'ypUFaYjmLewLHIOwqop9kaXu'
+    SECRET_KEY = 'tV38Hi5lELhel9xoGKLs9hrCxGWZSWbw'
 
     client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
     result  = client.synthesis('你好' + text, 'zh', 1, {
     'vol': 5,
 })
+    print("call baidu api")
 
     # 识别正确返回语音二进制 错误则返回dict 参照下面错误码
     if not isinstance(result, dict):
         with open('audio.mp3', 'wb') as f:
             f.write(result)
 
+  
 def playaudio(text):
-    ttsbaidu(text)
+    # not necessary to call baidu everytime
+    global lastText
+    if (text != lastText):
+        lastText = text
+        ttsbaidu(text)
+
     pygame.mixer.init()
     pygame.mixer.music.load("audio.mp3")
     pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play()
+
+_SLEEP_ = 0
+
+def notifySound(id):
+    global _SLEEP_
+    if (id == 'daiwenyuan'):
+        playaudio('爸爸')
+    elif (id == 'zhangli'):
+        playaudio('妈妈')
+    elif (id == 'daijiayi'):
+        playaudio('佳佳')
+    elif (id == 'unknown'):
+        playaudio('陌生人')
+    time.sleep(_SLEEP_)
 
 
 while True:
@@ -86,18 +109,14 @@ while True:
         if (confidence < 100):
             id = names[id]
             confidence = "  {0}%".format(round(100 - confidence))
-            print(id)
-            if (id == 'daiwenyuan'):
-                playaudio('dai wen yuan')
-                time.sleep(2)
-
         else:
             id = "unknown"
             confidence = "  {0}%".format(round(100 - confidence))
+        notifySound(id)
         
         cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
         cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
-    
+
     cv2.imshow('camera',img) 
 
     k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
