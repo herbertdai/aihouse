@@ -15,7 +15,7 @@ import time
 import datetime
 
 from aip import AipSpeech
-import pygame 
+import pygame
 
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read('trainer/trainer.yml')
@@ -73,9 +73,8 @@ def playaudio(text):
     print("play: " + text)
     pygame.mixer.init()
     pygame.mixer.music.load(text + ".mp3")
-    pygame.mixer.music.set_volume(1)
-    pygame.mixer.music.play()
-    time.sleep(5)    
+    pygame.mixer.music.play(loops=0, start=0.0)
+    time.sleep(3)    
 
 _SLEEP_ = 0
 
@@ -99,12 +98,50 @@ def isInTime(time1, time2):
     else:
         return False
 
+def isAM():
+    return isInTime('6:00', '12:00')
+
+def isPM():
+    isInTime('12:00', '18:00')
+    
+def getDJYiText():
+    today = datetime.datetime.now().weekday() + 1
+    txtToPlay = '佳佳' + '今天是星期' + str(today)
+    if (today == 1):
+        if isAM():
+            txtToPlay += '，'
+        elif isPM():
+            txtToPlay += '，'
+    elif (today == 2):
+        if isAM():
+            txtToPlay += '，'
+        elif isPM():
+            txtToPlay += '，'
+    elif (today == 3):
+        if isAM():
+            txtToPlay += '，早上有美术课，记得带美术袋哦～'
+        elif isPM():
+            txtToPlay += '，'
+    elif (today == 4):
+        if isAM():
+            txtToPlay += '，'
+        elif isPM():
+            txtToPlay += '，'
+    elif (today == 5):
+        if isAM():
+            txtToPlay += '，'
+        elif isPM():
+            txtToPlay += '，'
+    else:
+        txtToPlay += '今天是周末，玩得开心'
+        
+    #todo: check class time and add notify
+    return txtToPlay
 
 def notifySound(id):
     global _SLEEP_
     global g_video_rec
     txtToPlay = ''
-    today = datetime.datetime.now().weekday() + 1
     
     if (g_video_rec > 20):
         g_video_rec = 0
@@ -115,17 +152,11 @@ def notifySound(id):
         return
     
     if (id == 'daiwenyuan'):
-        playaudio('爸爸')
-
+        txtToPlay = '爸爸, You are so cool'
     elif (id == 'zhangli'):
-        playaudio('妈妈，记得要多喝水 ')
+        txtToPlay = '妈妈，记得要多喝水 '
     elif (id == 'daijiayi'):
-        txtToPlay = '佳佳' + '今天是星期' + str(today)
-        if (today == 4):
-            if isInTime('6:00', '8:00'):
-                txtToPlay += '，早上有英语课、语文课和数学课，还有《道德与法治》'
-            elif isInTime('12:00', '14:00'):
-                txtToPlay += '，今天下午有数学和体育'
+        txtToPlay = getDJYiText()
     elif (id == 'unknown'):
         txtToPlay = ''
 
