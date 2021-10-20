@@ -74,7 +74,7 @@ def playaudio(text):
     pygame.mixer.init()
     pygame.mixer.music.load(text + ".mp3")
     pygame.mixer.music.play(loops=0, start=0.0)
-    time.sleep(3)    
+    time.sleep(4)    
 
 _SLEEP_ = 0
 
@@ -119,7 +119,7 @@ def getDJYiText():
             txtToPlay += '，'
     elif (today == 3):
         if isAM():
-            txtToPlay += '，早上有美术课，记得带美术袋哦～'
+            txtToPlay += '，早上有美术课，记得带美术袋～'
         elif isPM():
             txtToPlay += '，'
     elif (today == 4):
@@ -152,9 +152,9 @@ def notifySound(id):
         return
     
     if (id == 'daiwenyuan'):
-        txtToPlay = '爸爸, You are so cool'
+        txtToPlay = '爸爸, 记得要多喝水,少生气'
     elif (id == 'zhangli'):
-        txtToPlay = '妈妈，记得要多喝水 '
+        txtToPlay = '妈妈，记得要多喝水,少生气'
     elif (id == 'daijiayi'):
         txtToPlay = getDJYiText()
     elif (id == 'unknown'):
