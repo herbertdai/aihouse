@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 import os 
 import time
+import datetime
 
 from aip import AipSpeech
 import pygame 
@@ -38,7 +39,8 @@ cam.set(4, 480) # set video height
 minW = 0.1*cam.get(3)
 minH = 0.1*cam.get(4)
 
-lastText = ''
+g_lastText = ''
+g_lastId = ''
 
 def ttsbaidu(text):
     """ 你的 APPID AK SK """
@@ -54,34 +56,75 @@ def ttsbaidu(text):
 
     # 识别正确返回语音二进制 错误则返回dict 参照下面错误码
     if not isinstance(result, dict):
-        with open('audio.mp3', 'wb') as f:
+        with open(text+'.mp3', 'wb') as f:
             f.write(result)
 
-  
+import os
+
 def playaudio(text):
+    if (text == ''):
+        return
+
     # not necessary to call baidu everytime
-    global lastText
-    if (text != lastText):
-        lastText = text
+    if not os.path.exists(text + ".mp3"):
         ttsbaidu(text)
 
+    print("play: " + text)
     pygame.mixer.init()
-    pygame.mixer.music.load("audio.mp3")
+    pygame.mixer.music.load(text + ".mp3")
     pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play()
 
 _SLEEP_ = 0
 
+
+def isInTime(time1, time2):
+    """ if now time is in a time area """
+    # 范围时间
+    start_time = datetime.datetime.strptime(str(datetime.datetime.now().date()) +  time1, '%Y-%m-%d%H:%M')
+    # 开始时间
+    print(start_time)
+    end_time = datetime.datetime.strptime(str(datetime.datetime.now().date()) + time2, '%Y-%m-%d%H:%M')
+    # 结束时间
+    print(end_time)
+    # 当前时间
+    now_time = datetime.datetime.now()
+    # 方法一：
+    # 判断当前时间是否在范围时间内
+    if start_time < now_time < end_time:
+        print("是在这个时间区间内")
+        return True
+    else:
+        return False
+
+
 def notifySound(id):
     global _SLEEP_
+    global g_lastId
+    txtToPlay = ''
+    today = datetime.datetime.now().weekday() + 1
+
+    if (id == g_lastId):
+        return
+    
+    g_lastId = id
+    
     if (id == 'daiwenyuan'):
         playaudio('爸爸')
+
     elif (id == 'zhangli'):
-        playaudio('妈妈')
+        playaudio('妈妈，记得要多喝水 ')
     elif (id == 'daijiayi'):
-        playaudio('佳佳')
+        txtToPlay = '佳佳' + '今天是星期' + str(today)
+        if (today == 4):
+            if isInTime('6:00', '8:00'):
+                txtToPlay += '，早上有英语课、语文课和数学课，还有《道德与法治》'
+            elif isInTime('12:00', '14:00'):
+                txtToPlay += '，今天下午有数学和体育'
     elif (id == 'unknown'):
-        playaudio('陌生人')
+        txtToPlay = ''
+
+    playaudio(txtToPlay)
     time.sleep(_SLEEP_)
 
 
@@ -117,7 +160,7 @@ while True:
         cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
         cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
 
-    cv2.imshow('camera',img) 
+    #cv2.imshow('camera',img) 
 
     k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
     if k == 27:
