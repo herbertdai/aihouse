@@ -41,6 +41,7 @@ minH = 0.1*cam.get(4)
 
 g_lastText = ''
 g_lastId = ''
+g_video_rec = 99 
 
 def ttsbaidu(text):
     """ 你的 APPID AK SK """
@@ -74,6 +75,7 @@ def playaudio(text):
     pygame.mixer.music.load(text + ".mp3")
     pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play()
+    time.sleep(5)    
 
 _SLEEP_ = 0
 
@@ -100,14 +102,17 @@ def isInTime(time1, time2):
 
 def notifySound(id):
     global _SLEEP_
-    global g_lastId
+    global g_video_rec
     txtToPlay = ''
     today = datetime.datetime.now().weekday() + 1
-
-    if (id == g_lastId):
-        return
     
-    g_lastId = id
+    if (g_video_rec > 20):
+        g_video_rec = 0
+        print("skip 20 video detections")
+    else:
+        g_video_rec += 1
+        print(g_video_rec)
+        return
     
     if (id == 'daiwenyuan'):
         playaudio('爸爸')
